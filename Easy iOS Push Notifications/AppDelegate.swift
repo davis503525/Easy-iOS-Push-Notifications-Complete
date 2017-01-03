@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import UserNotifications
+import Parse
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,8 +17,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        
+        let center = UNUserNotificationCenter.current()
+        let options: UNAuthorizationOptions = [.alert, .badge, .sound]
+        center.requestAuthorization(options: options, completionHandler: { authorized, error in
+            if authorized {
+                application.registerForRemoteNotifications()
+            }
+        })
+        
+        let configuration = ParseClientConfiguration {
+            $0.applicationId = "vaGg41kVPbuB4mmiuCW0jX6hudrRVKDnhR8GTYdT"
+            $0.clientKey = "WlZs5NoYFygkAcCaShbAtWpUSGlBOfyBAvB3FDEb"
+            $0.server = "https://parseapi.back4app.com"
+        }
+
+        Parse.initialize(with: configuration)
+        
         return true
+    }
+    
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        let installation = PFInstallation.current()
+        installation?.setDeviceTokenFrom(deviceToken)
+        installation?.saveInBackground()
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
